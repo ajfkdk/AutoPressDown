@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSGO 自动压枪配置</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: url('./img.png') no-repeat center center fixed;
+            background-size: cover;
+            color: #fff; /* 白色字体以便在深色背景上更清晰 */
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px #000; /* 为标题添加阴影 */
+        }
+        button {
+            background-color: #E5B53F; /* 金色按钮 */
+            border: none;
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1em;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #C6932D; /* 按钮悬停颜色 */
+        }
+        input[type="file"] {
+            margin: 10px 0;
+        }
+        table {
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        td, th {
+            border: 1px solid #fff; /* 白色边界 */
+            width: 50px;
+            height: 50px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .direction {
+            width: 100%;
+            height: 100%;
+            border: none;
+            background: rgba(0, 0, 0, 0.5); /* 半透明黑色背景 */
+            color: #fff; /* 白色字体 */
+            font-size: 20px;
+            text-align: center;
+        }
+        #downloadArea {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+<h1>CSGO 自动压枪配置</h1>
+<button onclick="exportDirections()">导出</button>
+<br>
+<input type="file" id="fileInput" accept=".txt">
+<button onclick="importDirections()">导入</button>
+<div id="downloadArea"></div>
+<table id="directionTable">
+    <script>
+        for (let i = 0; i < 200; i++) {
+            document.write("<tr>");
+            document.write(`<td><select class="direction">
+                    <option value=""> </option>
+                    <option value="0|1">↓</option>
+                    <option value="0|-1">↑</option>
+                    <option value="1|0">→</option>
+                    <option value="-1|0">←</option>
+                </select></td>`);
+            document.write("</tr>");
+        }
+    </script>
+</table>
+</body>
+</html>
+<script>
+    function exportDirections() {
+        let table = document.getElementById("directionTable");
+        let rows = table.rows;
+        let data = "";
+
+        for (let i = 0; i < rows.length; i++) {
+            let select = rows[i].querySelector("select");
+            let value = select.value;
+            if (value) { // Only include selected values
+                data += value + "\n";
+            }
+        }
+
+        if (data) {
+            let blob = new Blob([data], { type: "text/plain;charset=utf-8" });
+            let link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "directions.txt";
+            link.innerHTML = "点击下载文件";
+            link.style.display = "block";
+            link.style.marginTop = "10px";
+
+            let downloadArea = document.getElementById("downloadArea");
+            downloadArea.innerHTML = "";  // Clear previous links
+            downloadArea.appendChild(link);
+        } else {
+            alert("没有选中任何选项！");
+        }
+    }
+
+    function importDirections() {
+        let fileInput = document.getElementById("fileInput");
+        let file = fileInput.files[0];
+
+        if (file) {
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                let content = e.target.result;
+                let lines = content.split("\n");
+                let table = document.getElementById("directionTable");
+                let rows = table.rows;
+
+                for (let i = 0; i < rows.length && i < lines.length; i++) {
+                    let select = rows[i].querySelector("select");
+                    let value = lines[i].trim();
+                    if (value) {
+                        select.value = value;
+                    }
+                }
+            };
+            reader.readAsText(file);
+        } else {
+            alert("请选择一个文件进行导入！");
+        }
+    }
+</script>
